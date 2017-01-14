@@ -1,0 +1,194 @@
+<html ng-app="test">
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+  
+  <script src="https://cdn.jsdelivr.net/hls.js/latest/hls.min.js"></script>
+  <script
+    src="https://code.jquery.com/jquery-3.1.1.js"
+    integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
+    crossorigin="anonymous"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+  <body ng-controller="LayoutCtrl">
+    <div class="page-header">
+      <h1>
+	Stream Controls
+      </h1>
+    </div>
+    <div class="col-md-5">
+      <div class="panel panel-default">
+	<div class="panel-heading">
+	  <h4>
+	    Active Users
+	  </h4>
+	</div>
+	<div class="panel-body">
+	  <ul class="list-group"
+	      dnd-list="layout.active_user_list"
+	      dnd-drop="drop(layout.active_user_list, item, index)"
+	      style="min-height: 40px;">
+	    <li ng-repeat="item in layout.active_user_list"
+		class="list-group-item"
+		dnd-draggable="item"
+		dnd-moved="layout.active_user_list.splice($index, 1)"
+		dnd-effect-allowed="move"
+		dnd-selected="user_list_selected = item">
+	      <div class="btn-group pull-right" role="group">
+		<button type="button" class="btn btn-default" ng-click="toggleMute(item)">
+		  <div ng-show="isMuted(item)">
+		    <span class="glyphicon glyphicon-volume-off text-muted"></span>
+		  </div>
+		  <div ng-show="!isMuted(item)">
+		    <span class="glyphicon glyphicon-volume-up text-primary"></span>
+		  </div>
+		</button>
+	      </div>
+	      {{ item }}
+	    </li>
+	  </ul>
+	</div>
+      </div>
+      <div ng-show="unmutedCount() != 1" class="bg-danger">
+	You should have one user unmuted.
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="panel panel-default">
+	<div class="panel-heading">
+	  <h4>
+	    Stream Controls
+	  </h4>
+	</div>
+	<div class="panel-body">
+	  <div class="panel-body btn-group-vertical" role="group">
+	    <button type="button" class="btn btn-default" ng-click="startStream()">
+	      Start Stream
+	    </button>
+	    <button type="button" class="btn btn-default" ng-click="stopStream()">
+	      Stop Stream
+	    </button>
+	    <button type="button" class="btn btn-default" ng-click="startTimer()">
+	      Start Timer
+	    </button>
+	    <button type="button" class="btn btn-default" ng-click="resetTimer()">
+	      Reset Timer
+	    </button>
+	    timer is {{ timer.timer_state }}
+	  </div>
+	</div>
+      </div>
+      <div class="panel panel-default">
+	<div class="panel-heading">
+	  <h4>
+	    Layout Controls
+	  </h4>
+	</div>
+	<div class="panel-body btn-group-vertical" role="group">
+	  <button type="button" class="btn btn-primary btn-default" data-toggle="modal" data-target="#api-key-modal">
+	    Set API Key
+	  </button>
+	  <button type="button"
+		  class="btn btn-default"
+		  ng-click="postLayout()"
+		  ng-class="{'btn-primary': hasChanges()}">
+	    <div ng-show="hasChanges()" class="pull-right">
+	      <span class="badge">
+		<span class="glyphicon glyphicon-retweet">
+		</span>
+	      </span>
+	    </div>
+	    Push Changes
+	  </button>
+	  <button type="button" class="btn btn-default" ng-click="undoAllChanges()">Undo All Changes</button>
+
+	  <div class="dropdown">
+	    <button class="btn btn-default dropdown-toggle" type="button" id="numScenesDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+	      Streams Per Scene
+	      <span class="caret"></span>
+	    </button>
+	    <ul class="dropdown-menu">
+	      <li>
+		<a ng-click="layout.num_streams = 2">2</a>
+	      </li>
+	      <li>
+		<a ng-click="layout.num_streams = 3">3</a>
+	      </li>
+	      <li>
+		<a ng-click="layout.num_streams = 4">4</a>
+	      </li>
+	    </ul>
+	  </div>
+	</div>
+      </div>
+      <div class="panel panel-default">
+	<div class="panel-heading">
+	  <label class="btn btn-primary active pull-right">
+	    <input type="checkbox" autocomplete="off" ng-model="useFilter">filter
+	  </label>
+	  <h4>
+	    Scene Controls
+	  </h4>
+	</div>
+	<div class="panel-body">
+	  <ul class="list-group">
+	    <li ng-repeat="scene in scenes.scenes | filter: filterScenes"
+		class="list-group-item selected"
+		ng-click="changeScene(scene)">
+	      <div ng-class="{'bg-primary': scene === scenes.active_scene}">
+		{{scene}}
+	      </div>
+	    </li>
+	  </ul>
+	</div>
+      </div>
+    </div>
+    <div class="col-md-5">
+      <div class="panel panel-default">
+	<div class="panel-heading">
+	  <h4>
+	    Inactive Users
+	  </h4>
+	</div>
+	<div class="panel-body">
+	  <ul class="list-group bg-danger"
+	      dnd-list="layout.inactive_user_list"
+	      dnd-drop="drop(layout.inactive_user_list, item, index)"
+	      style="min-height: 40px;">
+	    <li ng-repeat="item in layout.inactive_user_list"
+		class="list-group-item"
+		dnd-draggable="item"
+		dnd-moved="layout.inactive_user_list.splice($index, 1)"
+		dnd-effect-allowed="move"
+		dnd-selected="user_list_selected = item">
+	      {{ item }}
+	    </li>
+	  </ul>
+	</div>
+      </div>
+      <video width="640px" controls muted id="video"></video>
+    </div>
+    <div class="modal fade" id="api-key-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+	<div class="modal-content">
+	  <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Set Your Api Key</h4>
+	  </div>
+	  <div class="modal-body">
+	        <input type="text" name="input" ng-model="api_key_input">
+	  </div>
+	  <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="setAPIKey(api_key_input)">Save changes</button>
+	  </div>
+	</div>
+      </div>
+    </div>
+  </body>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <script src="js/angular-drag-and-drop-lists.js"> </script>
+  <script src="js/app.js"> </script>
+</html>
