@@ -1,0 +1,1 @@
+This is currently an experiment to get obs running on a remote server with a REST interface. it is mostly full of hacks and hard coded junk.
