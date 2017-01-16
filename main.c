@@ -176,7 +176,7 @@ int main(int argc, char **argv)
 
   obs_data_t *image_settings = obs_source_get_settings(view4_image_source);
 
-  obs_data_set_string(image_settings, "file", "/home/kipples/Downloads/dkclayout_4view.png");
+  obs_data_set_string(image_settings, "file", "images/dkclayout_4view.png");
 
   obs_source_update(view4_image_source, image_settings);
 
@@ -184,7 +184,7 @@ int main(int argc, char **argv)
     
   image_settings = obs_source_get_settings(view3_image_source);
 
-  obs_data_set_string(image_settings, "file", "/home/kipples/Downloads/dkclayout_3view.png");
+  obs_data_set_string(image_settings, "file", "images/dkclayout_3view.png");
 
   obs_source_update(view3_image_source, image_settings);
 
@@ -192,7 +192,7 @@ int main(int argc, char **argv)
     
   image_settings = obs_source_get_settings(view2_image_source);
 
-  obs_data_set_string(image_settings, "file", "/home/kipples/Downloads/dkclayout_2view.png");
+  obs_data_set_string(image_settings, "file", "images/dkclayout_2view.png");
 
   obs_source_update(view2_image_source, image_settings);
 
