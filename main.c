@@ -233,7 +233,7 @@ int main(int argc, char **argv)
   obs_data_t *output_settings = obs_output_get_settings(output);
 
   obs_data_set_string(output_settings, "url", "rtmp://localhost:1935/hls/test");
-  obs_data_set_int(output_settings, "video_bitrate", 4500);
+  obs_data_set_int(output_settings, "video_bitrate", 3500);
   obs_data_set_int(output_settings, "audio_bitrate", 160);
   
   obs_output_update(output, output_settings);
