@@ -241,6 +241,15 @@ int main(int argc, char **argv)
   obs_source_release(audio_source);
 
   obs_encoder_t *h264_encoder = obs_video_encoder_create("obs_x264", "simple_h264_stream", NULL, NULL);
+
+  obs_data_t *h264_settings = obs_encoder_get_settings(h264_encoder);
+
+  obs_data_set_int(h264_settings, "bitrate", 3500);
+  obs_data_set_string(h264_settings, "preset", "fast");
+  obs_data_set_int(h264_settings, "keyint_sec", 2);
+
+  obs_encoder_update(h264_encoder, h264_settings);
+  
   obs_encoder_t *aac_encoder = obs_audio_encoder_create("ffmpeg_aac", "simple_aac_stream", NULL, 0, NULL);
 
   obs_encoder_set_video(h264_encoder, obs_get_video());
