@@ -38,6 +38,8 @@ static struct vec2 scene_4_name_plate_positions [] = {{ .x = 995.0, .y = 16.0},
 						      { .x = 995.0, .y = 168.0 },
 						      { .x = 995.0, .y = 244.0 }};
 
+static struct vec2 scene_4_timer_pos = { .x = 973.0, .y = 338.0 };
+
 static struct vec2 scene_3_stream_positions[] = {{ .x = 19.0, .y = 19.0},
 						 { .x = 489.0, .y = 19.0},
 						 { .x = 19.0, .y = 370.0}};
@@ -47,12 +49,16 @@ static struct vec2 scene_3_name_plate_positions [] = {{ .x = 650.0, .y = 410.0},
 						      { .x = 705.0, .y = 500.0},
 						      { .x = 760.0, .y = 590.0 }};
 
+static struct vec2 scene_3_timer_pos = { .x = 968.0, .y = 20.0 };
+
 static struct vec2 scene_2_stream_positions[] = {{ .x = 0.0, .y = 19.0},
 						 { .x = 642.0, .y = 19.0}};
 static struct vec2 scene_2_stream_bounds = { .x = 639.0, .y = 480.0 };
 
 static struct vec2 scene_2_name_plate_positions [] = {{ .x = 110.0, .y = 530.0},
 						      { .x = 730.0, .y = 530.0 }};
+
+static struct vec2 scene_2_timer_pos = { .x = 542.0, .y = 594.0 };
 
 static void create_scene_name_plates(obs_server_data_t *data,
 				     obs_scene_t *scene, int num_streams, int scene_num,
@@ -72,6 +78,8 @@ static void create_scene_name_plates(obs_server_data_t *data,
 static void create_player_scenes(obs_server_data_t *data, int num_scenes, int num_streams,
 				 struct vec2 positions[], struct vec2 *bounds,
 				 struct vec2 name_plate_postitions [],
+				 struct vec2 *timer_pos,
+				 obs_source_t *timer_source,
 				 obs_source_t *image_source)
 {
   int i;
@@ -81,7 +89,10 @@ static void create_player_scenes(obs_server_data_t *data, int num_scenes, int nu
   obs_scene_t *scene = obs_server_add_scene(data, str);
 
   obs_scene_add(scene, image_source);
+  obs_sceneitem_t *item = obs_scene_add(scene, timer_source);
 
+  obs_sceneitem_set_pos(item, timer_pos);
+	
   obs_source_t *source = obs_scene_get_source(scene);
 
   obs_data_t *source_data = obs_source_get_settings(source);
@@ -196,11 +207,20 @@ int main(int argc, char **argv)
 
   obs_source_update(view2_image_source, image_settings);
 
-  obs_source_t *audio_source = obs_source_create("pulse_output_capture", "audio", NULL, NULL);
+  obs_source_t *timer_source = obs_source_create("xcomposite_input", "Timer", NULL, NULL);
 
-  create_player_scenes(&server_data, 9, 4, scene_4_stream_positions, &scene_4_stream_bounds, scene_4_name_plate_positions, view4_image_source);
-  create_player_scenes(&server_data, 9, 3, scene_3_stream_positions, &scene_3_stream_bounds, scene_3_name_plate_positions, view3_image_source);
-  create_player_scenes(&server_data, 9, 2, scene_2_stream_positions, &scene_2_stream_bounds, scene_2_name_plate_positions, view2_image_source);
+  obs_data_t *timer_data = obs_source_get_settings(timer_source);
+
+  obs_data_set_string(timer_data, "capture_window", "\r\nTimer\r\n");
+  obs_data_set_bool(timer_data, "exclude_alpha", true);
+
+  obs_source_update(timer_source, timer_data);
+
+  create_player_scenes(&server_data, 9, 4, scene_4_stream_positions, &scene_4_stream_bounds, scene_4_name_plate_positions, &scene_4_timer_pos, timer_source, view4_image_source);
+  create_player_scenes(&server_data, 9, 3, scene_3_stream_positions, &scene_3_stream_bounds, scene_3_name_plate_positions, &scene_3_timer_pos, timer_source, view3_image_source);
+  create_player_scenes(&server_data, 9, 2, scene_2_stream_positions, &scene_2_stream_bounds, scene_2_name_plate_positions, &scene_2_timer_pos, timer_source, view2_image_source);
+
+  obs_source_t *audio_source = obs_source_create("pulse_output_capture", "audio", NULL, NULL);
 
   obs_scene_t *scene = obs_server_find_scene_by_name(&server_data, "4view_0");
   
