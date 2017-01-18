@@ -134,6 +134,38 @@ static void create_player_scenes(obs_server_data_t *data, int num_scenes, int nu
   obs_data_release(scene_meta_data);
 }
 
+obs_source_t *create_image_source(const char *name, const char *image_file)
+{
+  obs_source_t *image_source = obs_source_create("image_source", name, NULL, NULL);
+  obs_data_t *image_settings = obs_source_get_settings(image_source);
+  obs_data_set_string(image_settings, "file", image_file);
+
+  obs_source_update(image_source, image_settings);
+  obs_data_release(image_settings);
+
+  return image_source;
+}
+
+obs_source_t *create_window_capture(const char *window_title)
+{
+  char str[64];
+
+  strcpy(str, "\r\n");
+  strcat(str, window_title);
+  strcat(str, "\r\n");
+  
+  obs_source_t *window_source = obs_source_create("xcomposite_input", window_title, NULL, NULL);
+  obs_data_t *window_settings = obs_source_get_settings(window_source);
+    
+  obs_data_set_string(window_settings, "capture_window", str);
+  obs_data_set_bool(window_settings, "exclude_alpha", true);
+
+  obs_source_update(window_source, window_settings);
+  obs_data_release(window_settings);
+
+  return window_source;
+}
+
 int main(int argc, char **argv)
 {
 
@@ -183,42 +215,20 @@ int main(int argc, char **argv)
 
   init_obs_server_data(&server_data);
   
-  obs_source_t *view4_image_source = obs_source_create("image_source", "4viewimage", NULL, NULL);
+  obs_source_t *view4_image_source = create_image_source("4viewimage", "images/dkclayout_4view.png");
+  obs_source_t *view3_image_source = create_image_source("3viewimage", "images/dkclayout_3view.png");
+  obs_source_t *view2_image_source = create_image_source("2viewimage", "images/dkclayout_2view.png");
 
-  obs_data_t *image_settings = obs_source_get_settings(view4_image_source);
-
-  obs_data_set_string(image_settings, "file", "images/dkclayout_4view.png");
-
-  obs_source_update(view4_image_source, image_settings);
-
-  obs_source_t *view3_image_source = obs_source_create("image_source", "3viewimage", NULL, NULL);
-    
-  image_settings = obs_source_get_settings(view3_image_source);
-
-  obs_data_set_string(image_settings, "file", "images/dkclayout_3view.png");
-
-  obs_source_update(view3_image_source, image_settings);
-
-  obs_source_t *view2_image_source = obs_source_create("image_source", "2viewimage", NULL, NULL);
-    
-  image_settings = obs_source_get_settings(view2_image_source);
-
-  obs_data_set_string(image_settings, "file", "images/dkclayout_2view.png");
-
-  obs_source_update(view2_image_source, image_settings);
-
-  obs_source_t *timer_source = obs_source_create("xcomposite_input", "Timer", NULL, NULL);
-
-  obs_data_t *timer_data = obs_source_get_settings(timer_source);
-
-  obs_data_set_string(timer_data, "capture_window", "\r\nTimer\r\n");
-  obs_data_set_bool(timer_data, "exclude_alpha", true);
-
-  obs_source_update(timer_source, timer_data);
+  obs_source_t *timer_source = create_window_capture("Timer");
 
   create_player_scenes(&server_data, 9, 4, scene_4_stream_positions, &scene_4_stream_bounds, scene_4_name_plate_positions, &scene_4_timer_pos, timer_source, view4_image_source);
   create_player_scenes(&server_data, 9, 3, scene_3_stream_positions, &scene_3_stream_bounds, scene_3_name_plate_positions, &scene_3_timer_pos, timer_source, view3_image_source);
   create_player_scenes(&server_data, 9, 2, scene_2_stream_positions, &scene_2_stream_bounds, scene_2_name_plate_positions, &scene_2_timer_pos, timer_source, view2_image_source);
+
+  obs_source_release(view4_image_source);
+  obs_source_release(view3_image_source);
+  obs_source_release(view2_image_source);
+  obs_source_release(timer_source);
 
   obs_source_t *audio_source = obs_source_create("pulse_output_capture", "audio", NULL, NULL);
 
@@ -226,17 +236,41 @@ int main(int argc, char **argv)
   
   obs_set_output_source(0, obs_scene_get_source(scene));
   obs_set_output_source(1, audio_source);
-
-  obs_output_t *output = obs_output_create("ffmpeg_output", "live_stream", NULL, NULL);
-  obs_output_set_preferred_size(output, 1280, 720);
-
-  obs_data_t *output_settings = obs_output_get_settings(output);
-
-  obs_data_set_string(output_settings, "url", "rtmp://localhost:1935/hls/test");
-  obs_data_set_int(output_settings, "video_bitrate", 3500);
-  obs_data_set_int(output_settings, "audio_bitrate", 160);
   
-  obs_output_update(output, output_settings);
+  obs_scene_release(scene);
+  obs_source_release(audio_source);
+
+  obs_encoder_t *h264_encoder = obs_video_encoder_create("obs_x264", "simple_h264_stream", NULL, NULL);
+  obs_encoder_t *aac_encoder = obs_audio_encoder_create("ffmpeg_aac", "simple_aac_stream", NULL, 0, NULL);
+
+  obs_encoder_set_video(h264_encoder, obs_get_video());
+  obs_encoder_set_audio(aac_encoder, obs_get_audio());
+
+  obs_output_t *output = obs_output_create("rtmp_output", "live_stream", NULL, NULL);
+
+  obs_service_t *service = obs_service_create("rtmp_custom", "nginx_rtmp", NULL, NULL);
+
+  obs_data_t *service_settings = obs_service_get_settings(service);
+  obs_data_set_string(service_settings, "server", "rtmp://localhost/twitch/");
+  obs_data_set_string(service_settings, "key", "dkcspeedruns"); //Doesn't really matter what we put here
+  obs_service_update(service, service_settings);
+  obs_data_release(service_settings);
+
+  obs_output_set_video_encoder(output, h264_encoder);
+  obs_output_set_audio_encoder(output, aac_encoder, 0);
+  
+  obs_output_set_service(output, service);
+
+  /* obs_output_t *output = obs_output_create("ffmpeg_output", "live_stream", NULL, NULL); */
+  /* obs_output_set_preferred_size(output, 1280, 720); */
+
+  /* obs_data_t *output_settings = obs_output_get_settings(output); */
+
+  /* obs_data_set_string(output_settings, "url", "rtmp://localhost:1935/twitch/dkcspeedruns"); */
+  /* obs_data_set_int(output_settings, "video_bitrate", 3500); */
+  /* obs_data_set_int(output_settings, "audio_bitrate", 160); */
+  
+  /* obs_output_update(output, output_settings); */
 
   struct gs_init_data info = {};
 
