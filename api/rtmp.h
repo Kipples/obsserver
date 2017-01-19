@@ -21,8 +21,14 @@ int on_publish_GET(const struct _u_request *request, struct _u_response *respons
   json_t *value;
 
   json_object_foreach(data->stream_keys, key, value) {
-    if(strcmp(json_string_value(value), stream_name) == 0)
+    if(strcmp(json_string_value(value), stream_name) == 0) {
       rc = 200;
+
+      obs_source_t *source = obs_get_source_by_name(stream_name);
+      obs_data_t *d = obs_source_get_settings(source);
+      obs_source_update(source, d); // hack to get vlc to reload
+      
+    }
   }
 
   ulfius_set_empty_response(response, rc);

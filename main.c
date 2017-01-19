@@ -307,9 +307,9 @@ int main(int argc, char **argv)
     break;    
   }
 
-  obs_display_t *dis = obs_display_create(&info);
+  /* obs_display_t *dis = obs_display_create(&info); */
 
-  obs_display_add_draw_callback(dis, render_window, NULL);
+  /* obs_display_add_draw_callback(dis, render_window, NULL); */
 
   SDL_Event e;
   int quit = 0;
@@ -322,7 +322,14 @@ int main(int argc, char **argv)
 
   ulfius_start_framework(&instance);
 
+  int fps_display = 0;
+  
   while(!quit) {
+    if(fps_display > 100) {
+      printf("fps: %f\n", obs_get_active_fps());
+      fps_display = 0;
+    }
+    fps_display++;
     while(SDL_PollEvent(&e)) {
       switch(e.type) {
       case SDL_QUIT:
@@ -331,12 +338,13 @@ int main(int argc, char **argv)
       case SDL_WINDOWEVENT:
 	switch(e.window.event) {
 	case SDL_WINDOWEVENT_RESIZED:
-	  obs_display_resize(dis, e.window.data1, e.window.data2);
+	  /* obs_display_resize(dis, e.window.data1, e.window.data2); */
 	  break;
 	}
 	break;
       }
     }
+    SDL_Delay(15);
   }
 
   destroy_obs_server_data(&server_data);
