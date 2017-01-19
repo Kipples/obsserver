@@ -19,40 +19,40 @@ typedef struct obs_server_data_t {
 } obs_server_data_t;
 
 
-/* void create_stream_key_source(const char *stream_key) */
-/* { */
-/*   char str[256]; */
-  
-/*   obs_source_t *video_source = obs_source_create("ffmpeg_source", stream_key, NULL, NULL); */
-/*   obs_data_t *video_settings = obs_source_get_settings(video_source); */
-
-/*   obs_data_set_bool(video_settings, "is_local_file", false); */
-/*   obs_data_set_bool(video_settings, "restart_on_activate", false); */
-/*   sprintf(str, "rtmp://localhost/live/%s", stream_key); */
-/*   obs_data_set_string(video_settings, "input", str); */
-
-/*   obs_source_set_muted(video_source, true); */
-/*   obs_source_update(video_source, video_settings); */
-/* } */
-
 void create_stream_key_source(const char *stream_key)
 {
-    char str[256];
+  char str[256];
+  
+  obs_source_t *video_source = obs_source_create("ffmpeg_source", stream_key, NULL, NULL);
+  obs_data_t *video_settings = obs_source_get_settings(video_source);
 
-    obs_data_t *settings = obs_data_create();
-    obs_data_array_t *arr = obs_data_array_create();
-    obs_data_t *d = obs_data_create();
-    sprintf(str, "rtmp://localhost/live/%s", stream_key);
-    obs_data_set_string(d, "value", str);
-    obs_data_array_push_back(arr, d);
-    obs_data_set_array(settings, "playlist", arr);
-    obs_data_set_string(settings, "playback_behavior", "always_play");
+  obs_data_set_bool(video_settings, "is_local_file", false);
+  obs_data_set_bool(video_settings, "restart_on_activate", false);
+  sprintf(str, "rtmp://localhost/live/%s", stream_key);
+  obs_data_set_string(video_settings, "input", str);
 
-    obs_source_t *vlc_source = obs_source_create("vlc_source", stream_key, settings, NULL);
-
-    obs_source_set_muted(vlc_source, true);
-    obs_source_update(vlc_source, settings);
+  obs_source_set_muted(video_source, true);
+  obs_source_update(video_source, video_settings);
 }
+
+/* void create_stream_key_source(const char *stream_key) */
+/* { */
+/*     char str[256]; */
+
+/*     obs_data_t *settings = obs_data_create(); */
+/*     obs_data_array_t *arr = obs_data_array_create(); */
+/*     obs_data_t *d = obs_data_create(); */
+/*     sprintf(str, "rtmp://localhost/live/%s", stream_key); */
+/*     obs_data_set_string(d, "value", str); */
+/*     obs_data_array_push_back(arr, d); */
+/*     obs_data_set_array(settings, "playlist", arr); */
+/*     obs_data_set_string(settings, "playback_behavior", "always_play"); */
+
+/*     obs_source_t *vlc_source = obs_source_create("vlc_source", stream_key, settings, NULL); */
+
+/*     obs_source_set_muted(vlc_source, true); */
+/*     obs_source_update(vlc_source, settings); */
+/* } */
 
 void init_obs_server_data(obs_server_data_t *data)
 {
