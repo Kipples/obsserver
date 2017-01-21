@@ -15,11 +15,12 @@ typedef struct obs_server_data_t {
   json_t *stream_keys;
   json_t *name_plate_sources;
   char *secret_key;
+  json_t *global;
   obs_scene_list_t *scene_head, *scene_tail;
 } obs_server_data_t;
 
 
-void create_stream_key_source(const char *stream_key)
+obs_source_t *create_stream_key_source(const char *stream_key)
 {
   char str[256];
   
@@ -33,6 +34,8 @@ void create_stream_key_source(const char *stream_key)
 
   obs_source_set_muted(video_source, true);
   obs_source_update(video_source, video_settings);
+
+  return video_source;
 }
 
 /* void create_stream_key_source(const char *stream_key) */
@@ -58,9 +61,9 @@ void init_obs_server_data(obs_server_data_t *data)
 {
   json_error_t error;
   
-  json_t *g = json_load_file("./global.json", 0, &error);
+  data->global = json_load_file("./global.json", 0, &error);
 
-  const char *secret_key = json_string_value(json_object_get(g, "secret_key"));
+  const char *secret_key = json_string_value(json_object_get(data->global, "secret_key"));
 
   data->secret_key = malloc(strlen(secret_key));
   data->secret_key = strcpy(data->secret_key, secret_key);

@@ -219,7 +219,8 @@ int main(int argc, char **argv)
   obs_source_t *view3_image_source = create_image_source("3viewimage", "images/dkclayout_3view.png");
   obs_source_t *view2_image_source = create_image_source("2viewimage", "images/dkclayout_2view.png");
 
-  obs_source_t *timer_source = create_window_capture("Timer");
+  const char *timer_stream_key = json_string_value(json_object_get(server_data.global, "timer_stream_key"));
+  obs_source_t *timer_source = create_stream_key_source(timer_stream_key);
 
   create_player_scenes(&server_data, 9, 4, scene_4_stream_positions, &scene_4_stream_bounds, scene_4_name_plate_positions, &scene_4_timer_pos, timer_source, view4_image_source);
   create_player_scenes(&server_data, 9, 3, scene_3_stream_positions, &scene_3_stream_bounds, scene_3_name_plate_positions, &scene_3_timer_pos, timer_source, view3_image_source);
