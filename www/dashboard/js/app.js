@@ -143,7 +143,7 @@ app.controller('LayoutCtrl', function($scope, $http, $timeout) {
 		   'Client-ID': $scope.api_key
 	       }
 	      }).then(function (res) {
-		  $timeout(startVideo, 10000)
+		  
 	      }).catch(function (res) {
 		  console.log("error starting stream");
 	      });
@@ -192,15 +192,3 @@ app.controller('LayoutCtrl', function($scope, $http, $timeout) {
 	return count;
     }
 });
-
-function startVideo () {
-    if(Hls.isSupported()) {
-	var video = document.getElementById('video');
-	var hls = new Hls();
-	hls.loadSource('http://localhost/hls/test.m3u8');
-	hls.attachMedia(video);
-	hls.on(Hls.Events.MANIFEST_PARSED,function() {
-	    video.play();
-	});
-    }
-}
