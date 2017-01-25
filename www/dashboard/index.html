@@ -69,13 +69,8 @@
 	    <button type="button" class="btn btn-default" ng-click="stopStream()">
 	      Stop Stream
 	    </button>
-	    <button type="button" class="btn btn-default" ng-click="startTimer()">
-	      Start Timer
-	    </button>
-	    <button type="button" class="btn btn-default" ng-click="resetTimer()">
-	      Reset Timer
-	    </button>
-	    timer is {{ timer.timer_state }}
+	    <input type="number" ng-model="audio.source.delay"/>
+	    <button type="button" class="btn btn-default" ng-click="setDelay()">Set Commentator Delay</button>
 	  </div>
 	</div>
       </div>

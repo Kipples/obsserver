@@ -69,6 +69,10 @@ static void create_scene_name_plates(obs_server_data_t *data,
   for(int i = 0; i < num_streams; i++) {
     sprintf(str, "%dview_%dscene_%dtext", num_streams, scene_num, i);
     obs_source_t *text_source = obs_source_create("text_ft2_source", str, NULL, NULL);
+    obs_data_t *settings = obs_source_get_settings(text_source);
+    obs_data_set_bool(settings, "outline", true);
+    obs_source_update(text_source, settings);
+    obs_data_release(settings);
     obs_sceneitem_t *item = obs_scene_add(scene, text_source);
     obs_sceneitem_set_pos(item, &(name_plate_positions[i]));
     json_array_append_new(data->name_plate_sources, json_string(str));

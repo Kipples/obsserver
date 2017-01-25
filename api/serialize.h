@@ -1,6 +1,10 @@
 #ifndef SERIALIZE_H
 #define SERIALIZE_H
 
+#ifndef NSEC_PER_MSEC
+#define NSEC_PER_MSEC 1000000
+#endif
+
 static void json_error_to_json(json_t *json, json_error_t *error)
 {
   json_object_set_new(json, "error", json_string(error->text));
@@ -31,6 +35,7 @@ static void obs_source_to_json(json_t *json, obs_source_t *source, const char *k
   json_object_set_new(source_obj, "name", json_string(obs_source_get_name(source)));
   json_object_set_new(source_obj, "id", json_string(obs_source_get_id(source)));
   json_object_set_new(source_obj, "active", json_boolean(obs_source_active(source)));
+  json_object_set_new(source_obj, "delay", json_integer(obs_source_get_sync_offset(source) / NSEC_PER_MSEC));
   obs_data_to_json(source_obj, obs_source_get_settings(source), "data");
 
   json_object_set_new(json, key, source_obj);
@@ -95,6 +100,9 @@ static void json_update_obs_source(obs_source_t *source, json_t *json)
   json_object_foreach(json, key, value) {
     if(strcmp(key, "data") == 0) {
       json_data_to_obs_data(value, obs_source_get_settings(source));
+    }
+    if(strcmp(key, "delay") == 0) {
+      obs_source_set_sync_offset(source, json_integer_value(value) * NSEC_PER_MSEC);
     }
   }
 }

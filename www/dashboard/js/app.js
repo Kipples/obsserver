@@ -4,7 +4,8 @@ app.controller('LayoutCtrl', function($scope, $http, $timeout) {
     $scope.user_list_selected = null;
     $scope.layout = null;
     $scope.scenes = null;
-    $scope.timer = null;
+
+    $scope.audio = null;
 
     $scope.api_key = '';
     $scope.api_key_input = '';
@@ -13,6 +14,7 @@ app.controller('LayoutCtrl', function($scope, $http, $timeout) {
 	$scope.api_key = key;
 	getLayout();
 	getScenes();
+	getAudioSource();
     }
 
     var layout_hash = null;
@@ -59,6 +61,19 @@ app.controller('LayoutCtrl', function($scope, $http, $timeout) {
 		  updateSceneHash();
 	      }).catch(function(res) {
 		  console.log("error getting scenes");
+	      });
+    };
+
+    var getAudioSource = function () {
+	$http({method: 'GET',
+	       url: '/api/sources/audio',
+	       headers : {
+		   'Client-ID': $scope.api_key
+	       }
+	      }).then(function(res) {
+		  $scope.audio = res.data;
+	      }).catch(function(res) {
+		  console.log("error getting audio source");
 	      });
     };
     
@@ -128,6 +143,21 @@ app.controller('LayoutCtrl', function($scope, $http, $timeout) {
 	      });
     };
 
+    $scope.setDelay = function() {
+	$http({method: 'POST',
+	       url: '/api/sources/audio',
+	       headers: {
+		   'Client-ID': $scope.api_key,
+		   'Content-Type': 'application/json'
+	       },
+	       data: JSON.stringify($scope.audio)
+	      }).then(function(res) {
+		  $scope.audio = res.data
+	      }).catch(function(res) {
+		  console.log("error setting delay");
+	      });
+    };
+
     $scope.filterScenes = function(scene) {
 	var scene_num = Number(scene.slice(-1));
 	var inUse = scene_num < ($scope.layout.active_user_list.length / $scope.layout.num_streams);
@@ -162,27 +192,6 @@ app.controller('LayoutCtrl', function($scope, $http, $timeout) {
 	      });
     };
 
-    $scope.startTimer = function () {
-	$http({method: 'PUT',
-	       url: '/api/timer/start',
-	      }).then(function (res) {
-		  $scope.timer = res.data;
-	      }).catch(function (res) {
-		  console.log("error starting timer");
-	      });
-    };
-
-    $scope.resetTimer = function () {
-	$http({method: 'PUT',
-	       url: '/api/timer/reset',
-	      }).then(function (res) {
-		  $scope.timer = res.data;
-	      }).catch(function (res) {
-		  console.log("error resetting timer");
-	      });
-    };
-    
-    
     $scope.unmutedCount = function () {
 	var count = 0;
 	for(var i = 0; i < $scope.layout.active_user_list.length; i++) {
