@@ -20,7 +20,7 @@ app.controller('LayoutCtrl', function($scope, $http, $timeout) {
     var layout_hash = null;
     var scenes_hash = null;
 
-    var scenes_ignore_filter = ['main', ''];
+    var scenes_ignore_filter = ['stats'];
 
     $scope.useFilter = true;
 
@@ -162,7 +162,7 @@ app.controller('LayoutCtrl', function($scope, $http, $timeout) {
 	var scene_num = Number(scene.slice(-1));
 	var inUse = scene_num < ($scope.layout.active_user_list.length / $scope.layout.num_streams);
 	if($scope.useFilter)
-	    return inUse && (scene.startsWith($scope.layout.num_streams) || (scenes_ignore_filter.indexOf(scene) > -1));
+	    return (scenes_ignore_filter.indexOf(scene) > -1) || inUse && scene.startsWith($scope.layout.num_streams)
 	return true;
     };
 

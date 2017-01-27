@@ -226,9 +226,9 @@ int main(int argc, char **argv)
   const char *timer_stream_key = json_string_value(json_object_get(server_data.global, "timer_stream_key"));
   obs_source_t *timer_source = create_stream_key_source(timer_stream_key);
 
-  create_player_scenes(&server_data, 9, 4, scene_4_stream_positions, &scene_4_stream_bounds, scene_4_name_plate_positions, &scene_4_timer_pos, timer_source, view4_image_source);
-  create_player_scenes(&server_data, 9, 3, scene_3_stream_positions, &scene_3_stream_bounds, scene_3_name_plate_positions, &scene_3_timer_pos, timer_source, view3_image_source);
-  create_player_scenes(&server_data, 9, 2, scene_2_stream_positions, &scene_2_stream_bounds, scene_2_name_plate_positions, &scene_2_timer_pos, timer_source, view2_image_source);
+  create_player_scenes(&server_data, 6, 4, scene_4_stream_positions, &scene_4_stream_bounds, scene_4_name_plate_positions, &scene_4_timer_pos, timer_source, view4_image_source);
+  create_player_scenes(&server_data, 5, 3, scene_3_stream_positions, &scene_3_stream_bounds, scene_3_name_plate_positions, &scene_3_timer_pos, timer_source, view3_image_source);
+  create_player_scenes(&server_data, 4, 2, scene_2_stream_positions, &scene_2_stream_bounds, scene_2_name_plate_positions, &scene_2_timer_pos, timer_source, view2_image_source);
 
   obs_source_release(view4_image_source);
   obs_source_release(view3_image_source);
@@ -236,15 +236,17 @@ int main(int argc, char **argv)
   obs_source_release(timer_source);
 
   obs_source_t *audio_source = obs_source_create("pulse_output_capture", "audio", NULL, NULL);
+  
+  const char *stats_stream_key = json_string_value(json_object_get(server_data.global, "stats_stream_key"));
+  obs_source_t *stats_source = create_stream_key_source(stats_stream_key);
 
-  obs_scene_t *scene = obs_server_find_scene_by_name(&server_data, "4view_0");
+  obs_scene_t *scene =  obs_server_add_scene(&server_data, "stats");
+
+  obs_scene_add(scene, stats_source);
   
   obs_set_output_source(0, obs_scene_get_source(scene));
   obs_set_output_source(1, audio_source);
   
-  obs_scene_release(scene);
-  obs_source_release(audio_source);
-
   obs_encoder_t *h264_encoder = obs_video_encoder_create("obs_x264", "simple_h264_stream", NULL, NULL);
 
   obs_data_t *h264_settings = obs_encoder_get_settings(h264_encoder);
