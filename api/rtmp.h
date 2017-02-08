@@ -39,9 +39,6 @@ int on_publish_GET(const struct _u_request *request, struct _u_response *respons
 
     obs_source_t *source = obs_get_source_by_name(stream_name);
     obs_data_t *d = obs_source_get_settings(source);
-    obs_data_set_bool(d, "restart_on_activate", true);
-    obs_source_update(source, d); // hack to get media_source to reload
-    obs_data_set_bool(d, "restart_on_activate", false);
     obs_source_update(source, d); // hack to get media_source to reload
   }
 

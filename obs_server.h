@@ -28,7 +28,7 @@ obs_source_t *create_stream_key_source(const char *stream_key)
   obs_data_t *video_settings = obs_source_get_settings(video_source);
 
   obs_data_set_bool(video_settings, "is_local_file", false);
-  obs_data_set_bool(video_settings, "restart_on_activate", false);
+  // obs_data_set_bool(video_settings, "restart_on_activate", false);
   sprintf(str, "rtmp://localhost/live/%s", stream_key);
   obs_data_set_string(video_settings, "input", str);
 
@@ -95,8 +95,8 @@ void init_obs_server_data(obs_server_data_t *data)
 
   }
 
-  json_object_set_new(data->layout, "active_user_list", user_list);
-  json_object_set_new(data->layout, "inactive_user_list", json_array());
+  json_object_set_new(data->layout, "active_user_list", json_array());
+  json_object_set_new(data->layout, "inactive_user_list", user_list);
   
   data->scene_head = data->scene_tail = NULL;
 }
