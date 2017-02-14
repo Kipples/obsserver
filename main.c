@@ -271,6 +271,7 @@ int main(int argc, char **argv)
   obs_data_set_string(service_settings, "key", "dkcspeedruns"); //Doesn't really matter what we put here
   obs_service_update(service, service_settings);
   obs_data_release(service_settings);
+  
 
   obs_output_set_video_encoder(output, h264_encoder);
   obs_output_set_audio_encoder(output, aac_encoder, 0);
@@ -329,14 +330,7 @@ int main(int argc, char **argv)
 
   ulfius_start_framework(&instance);
 
-  int fps_display = 0;
-  
   while(!quit) {
-    if(fps_display > 100) {
-      printf("fps: %f\n", obs_get_active_fps());
-      fps_display = 0;
-    }
-    fps_display++;
     while(SDL_PollEvent(&e)) {
       switch(e.type) {
       case SDL_QUIT:
@@ -351,7 +345,6 @@ int main(int argc, char **argv)
 	break;
       }
     }
-    SDL_Delay(15);
   }
 
   destroy_obs_server_data(&server_data);
