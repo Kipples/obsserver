@@ -253,7 +253,7 @@ int main(int argc, char **argv)
 
   obs_data_t *h264_settings = obs_encoder_get_settings(h264_encoder);
 
-  obs_data_set_int(h264_settings, "bitrate", 5000);
+  obs_data_set_int(h264_settings, "bitrate", 4000);
   obs_data_set_string(h264_settings, "preset", "veryfast");
   obs_data_set_int(h264_settings, "keyint_sec", 2);
 
