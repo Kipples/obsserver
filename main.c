@@ -237,12 +237,14 @@ int main(int argc, char **argv)
 
   obs_source_t *audio_source = obs_source_create("pulse_output_capture", "audio", NULL, NULL);
   
-  const char *stats_stream_key = json_string_value(json_object_get(server_data.global, "stats_stream_key"));
-  obs_source_t *stats_source = create_stream_key_source(stats_stream_key);
+  /* const char *stats_stream_key = json_string_value(json_object_get(server_data.global, "stats_stream_key")); */
+  /* obs_source_t *stats_source = create_stream_key_source(stats_stream_key); */
 
-  obs_scene_t *scene =  obs_server_add_scene(&server_data, "stats");
+  /* obs_scene_t *scene =  obs_server_add_scene(&server_data, "stats"); */
 
-  obs_scene_add(scene, stats_source);
+  /* obs_scene_add(scene, stats_source); */
+
+  obs_scene_t *scene = obs_server_find_scene_by_name(&server_data, "4view_0");
   
   obs_set_output_source(0, obs_scene_get_source(scene));
   obs_set_output_source(1, audio_source);
@@ -251,8 +253,8 @@ int main(int argc, char **argv)
 
   obs_data_t *h264_settings = obs_encoder_get_settings(h264_encoder);
 
-  obs_data_set_int(h264_settings, "bitrate", 3500);
-  obs_data_set_string(h264_settings, "preset", "fast");
+  obs_data_set_int(h264_settings, "bitrate", 5000);
+  obs_data_set_string(h264_settings, "preset", "veryfast");
   obs_data_set_int(h264_settings, "keyint_sec", 2);
 
   obs_encoder_update(h264_encoder, h264_settings);

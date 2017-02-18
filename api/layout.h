@@ -88,6 +88,8 @@ int layout_reflow_PUT(const struct _u_request *request, struct _u_response *resp
 
     obs_scene_t *scene = obs_server_find_scene_by_name(data, str);
 
+    if(!scene) break;
+
     const char * stream_key = json_string_value(json_object_get(data->stream_keys, user_name));
     obs_sceneitem_t *item;
     foreach_scene_list(scene_list, data) {
