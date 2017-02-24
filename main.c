@@ -27,38 +27,40 @@ static void load_required_modules(void *param, const struct obs_module_info *inf
   }
 }
 
-static struct vec2 scene_4_stream_positions[] = {{ .x = 19.0, .y = 19.0},
-						  { .x = 489.0, .y = 19.0},
-						  { .x = 19.0, .y = 370.0},
-						  { .x = 489.0, .y = 370.0}};
-static struct vec2 scene_4_stream_bounds = { .x = 441.0, .y = 326.0 };
+static struct vec2 scene_4_stream_positions[] = {{ .x = 15.0, .y = 15.0},
+						  { .x = 485.0, .y = 15.0},
+						  { .x = 15.0, .y = 366.0},
+						  { .x = 485.0, .y = 366.0}};
+static struct vec2 scene_4_stream_bounds = { .x = 450.0, .y = 335.0 };
 
-static struct vec2 scene_4_name_plate_positions [] = {{ .x = 995.0, .y = 16.0},
-						      { .x = 995.0, .y = 92.0},
-						      { .x = 995.0, .y = 168.0 },
-						      { .x = 995.0, .y = 244.0 }};
+static struct vec2 scene_4_name_plate_positions [] = {{ .x = 963.0, .y = 28.0},
+						      { .x = 963.0, .y = 92.0},
+						      { .x = 963.0, .y = 155.0 },
+						      { .x = 963.0, .y = 219.0 }};
 
-static struct vec2 scene_4_timer_pos = { .x = 973.0, .y = 338.0 };
+static struct vec2 scene_4_timer_pos = { .x = 960.0, .y = 336.0 };
 
-static struct vec2 scene_3_stream_positions[] = {{ .x = 19.0, .y = 19.0},
-						 { .x = 489.0, .y = 19.0},
-						 { .x = 19.0, .y = 370.0}};
-static struct vec2 scene_3_stream_bounds = { .x = 441.0, .y = 326.0 };
+static struct vec2 scene_3_stream_positions[] = {{ .x = 15.0, .y = 15.0},
+						 { .x = 485.0, .y = 15.0},
+						 { .x = 15.0, .y = 366.0}};
 
-static struct vec2 scene_3_name_plate_positions [] = {{ .x = 650.0, .y = 410.0},
-						      { .x = 705.0, .y = 500.0},
-						      { .x = 760.0, .y = 590.0 }};
+static struct vec2 scene_3_stream_bounds = { .x = 450.0, .y = 335.0 };
 
-static struct vec2 scene_3_timer_pos = { .x = 968.0, .y = 20.0 };
+static struct vec2 scene_3_name_plate_positions [] = {{ .x = 515.0, .y = 390.0},
+						      { .x = 515.0, .y = 476.0},
+						      { .x = 515.0, .y = 563.0 }};
 
-static struct vec2 scene_2_stream_positions[] = {{ .x = 0.0, .y = 19.0},
-						 { .x = 642.0, .y = 19.0}};
+static struct vec2 scene_3_timer_pos = { .x = 966.0, .y = 19.0 };
+
+static struct vec2 scene_2_stream_positions[] = {{ .x = 0.0, .y = 20.0},
+						 { .x = 641.0, .y = 20.0}};
+
 static struct vec2 scene_2_stream_bounds = { .x = 639.0, .y = 480.0 };
 
-static struct vec2 scene_2_name_plate_positions [] = {{ .x = 110.0, .y = 530.0},
-						      { .x = 730.0, .y = 530.0 }};
+static struct vec2 scene_2_name_plate_positions [] = {{ .x = 50.0, .y = 540.0},
+						      { .x = 788.0, .y = 540.0 }};
 
-static struct vec2 scene_2_timer_pos = { .x = 542.0, .y = 594.0 };
+static struct vec2 scene_2_timer_pos = { .x = 505.0, .y = 626.0 };
 
 static void create_scene_name_plates(obs_server_data_t *data,
 				     obs_scene_t *scene, int num_streams, int scene_num,
@@ -219,9 +221,9 @@ int main(int argc, char **argv)
 
   init_obs_server_data(&server_data);
   
-  obs_source_t *view4_image_source = create_image_source("4viewimage", "images/dkclayout_4view.png");
-  obs_source_t *view3_image_source = create_image_source("3viewimage", "images/dkclayout_3view.png");
-  obs_source_t *view2_image_source = create_image_source("2viewimage", "images/dkclayout_2view.png");
+  obs_source_t *view4_image_source = create_image_source("4viewimage", "images/dkclayout_4view2017.png");
+  obs_source_t *view3_image_source = create_image_source("3viewimage", "images/dkc_layout_3view2017.png");
+  obs_source_t *view2_image_source = create_image_source("2viewimage", "images/dkc_2view2017.png");
 
   const char *timer_stream_key = json_string_value(json_object_get(server_data.global, "timer_stream_key"));
   obs_source_t *timer_source = create_stream_key_source(timer_stream_key);
@@ -317,9 +319,9 @@ int main(int argc, char **argv)
     break;    
   }
 
-  /* obs_display_t *dis = obs_display_create(&info); */
+  obs_display_t *dis = obs_display_create(&info);
 
-  /* obs_display_add_draw_callback(dis, render_window, NULL); */
+  obs_display_add_draw_callback(dis, render_window, NULL);
 
   SDL_Event e;
   int quit = 0;
