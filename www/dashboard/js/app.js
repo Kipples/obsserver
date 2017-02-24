@@ -124,6 +124,22 @@ app.controller('LayoutCtrl', function($scope, $http, $timeout) {
     $scope.toggleMute = function(item) {
 	$scope.layout[item].muted = !$scope.layout[item].muted;
     }
+
+    $scope.moveInactive = function(item) {
+	var i = $scope.layout.active_user_list.indexOf(item);
+	if(i > -1) {
+	    $scope.layout.active_user_list.splice(i, 1);
+	}
+	$scope.layout.inactive_user_list.unshift(item);
+    }
+
+    $scope.moveActive = function(item) {
+	var i = $scope.layout.inactive_user_list.indexOf(item);
+	if(i > -1) {
+	    $scope.layout.inactive_user_list.splice(i, 1);
+	}
+	$scope.layout.active_user_list.unshift(item);
+    }
     
     $scope.isMuted = function(item) {
 	return $scope.layout[item].muted;

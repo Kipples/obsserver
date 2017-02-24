@@ -36,6 +36,9 @@
 		dnd-effect-allowed="move"
 		dnd-selected="user_list_selected = item">
 	      <div class="btn-group pull-right" role="group">
+		<button type="button" class="btn btn-default" ng-click="moveInactive(item)">
+		  Inactive
+		</button>
 		<button type="button" class="btn btn-default" ng-click="toggleMute(item)">
 		  <div ng-show="isMuted(item)">
 		    <span class="glyphicon glyphicon-volume-off text-muted"></span>
@@ -69,8 +72,6 @@
 	    <button type="button" class="btn btn-default" ng-click="stopStream()">
 	      Stop Stream
 	    </button>
-	    <input type="number" ng-model="audio.source.delay"/>
-	    <button type="button" class="btn btn-default" ng-click="setDelay()">Set Commentator Delay</button>
 	  </div>
 	</div>
       </div>
@@ -157,6 +158,11 @@
 		dnd-moved="layout.inactive_user_list.splice($index, 1)"
 		dnd-effect-allowed="move"
 		dnd-selected="user_list_selected = item">
+	      <div class="btn-group pull-right" role="group">
+		<button type="button" class="btn btn-default" ng-click="moveActive(item)">
+		  Active
+		</button>
+	      </div>
 	      {{ item }}
 	    </li>
 	  </ul>
