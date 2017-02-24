@@ -101,7 +101,9 @@ int layout_reflow_PUT(const struct _u_request *request, struct _u_response *resp
 
     obs_source_t *source = obs_get_source_by_name(stream_key);
 
-    obs_source_set_muted(source, json_boolean_value(json_object_get(user, "muted")));
+    bool is_muted = json_boolean_value(json_object_get(user, "muted"));
+
+    obs_source_set_muted(source, is_muted);
     
     item = obs_scene_add(scene, source);
 
@@ -138,6 +140,13 @@ int layout_reflow_PUT(const struct _u_request *request, struct _u_response *resp
     obs_data_set_string(text_source_data, "text", user_name);
 
     obs_source_update(source, text_source_data);
+
+    sprintf(str, "%dview_%dscene_%daudio", num_streams, scene_offset, location_offset);
+
+    obs_sceneitem_t *audio = obs_scene_find_source(scene, str);
+
+    obs_sceneitem_set_visible(audio, !is_muted);
+    
   }
   
   ulfius_set_json_response(response, 200, data->layout);

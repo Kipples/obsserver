@@ -64,6 +64,7 @@ static struct vec2 scene_2_timer_pos = { .x = 505.0, .y = 626.0 };
 
 static void create_scene_name_plates(obs_server_data_t *data,
 				     obs_scene_t *scene, int num_streams, int scene_num,
+				     obs_source_t *audio_image_source,
 				     struct vec2 name_plate_positions[])
 {
   char str[32];
@@ -76,8 +77,18 @@ static void create_scene_name_plates(obs_server_data_t *data,
     obs_source_update(text_source, settings);
     obs_data_release(settings);
     obs_sceneitem_t *item = obs_scene_add(scene, text_source);
-    obs_sceneitem_set_pos(item, &(name_plate_positions[i]));
+    struct vec2 v;
+    vec2_copy(&v, &(name_plate_positions[i]));
+    struct vec2 f = { .x = 60, .y = 0 };
+    vec2_add(&v, &v, &f);
+    obs_sceneitem_set_pos(item, &v);
     json_array_append_new(data->name_plate_sources, json_string(str));
+
+    sprintf(str, "%dview_%dscene_%daudio", num_streams, scene_num, i);
+    obs_source_t *dup_audio = obs_source_duplicate(audio_image_source, str, false);
+    item = obs_scene_add(scene, dup_audio);
+    obs_sceneitem_set_pos(item, &(name_plate_positions[i]));
+    obs_sceneitem_set_visible(item, false);
   }
 }
 
@@ -86,7 +97,8 @@ static void create_player_scenes(obs_server_data_t *data, int num_scenes, int nu
 				 struct vec2 name_plate_postitions [],
 				 struct vec2 *timer_pos,
 				 obs_source_t *timer_source,
-				 obs_source_t *image_source)
+				 obs_source_t *image_source,
+				 obs_source_t *audio_image_source)
 {
   int i;
   char str[32];
@@ -131,10 +143,10 @@ static void create_player_scenes(obs_server_data_t *data, int num_scenes, int nu
     source_data = obs_source_get_settings(source);
     obs_data_apply(source_data, scene_meta_data);
     obs_source_update(source, source_data);
-    create_scene_name_plates(data, s, num_streams, i, name_plate_postitions);
+    create_scene_name_plates(data, s, num_streams, i, audio_image_source, name_plate_postitions);
   }
 
-  create_scene_name_plates(data, scene, num_streams, 0, name_plate_postitions);
+  create_scene_name_plates(data, scene, num_streams, 0, audio_image_source, name_plate_postitions);
 
   obs_data_release(virtual_locations);
   obs_data_release(scene_meta_data);
@@ -224,13 +236,14 @@ int main(int argc, char **argv)
   obs_source_t *view4_image_source = create_image_source("4viewimage", "images/dkclayout_4view2017.png");
   obs_source_t *view3_image_source = create_image_source("3viewimage", "images/dkc_layout_3view2017.png");
   obs_source_t *view2_image_source = create_image_source("2viewimage", "images/dkc_2view2017.png");
+  obs_source_t *audio_image_source = create_image_source("audioimage", "images/dkcsoundicon.png");
 
   const char *timer_stream_key = json_string_value(json_object_get(server_data.global, "timer_stream_key"));
   obs_source_t *timer_source = create_stream_key_source(timer_stream_key);
 
-  create_player_scenes(&server_data, 1, 4, scene_4_stream_positions, &scene_4_stream_bounds, scene_4_name_plate_positions, &scene_4_timer_pos, timer_source, view4_image_source);
-  create_player_scenes(&server_data, 1, 3, scene_3_stream_positions, &scene_3_stream_bounds, scene_3_name_plate_positions, &scene_3_timer_pos, timer_source, view3_image_source);
-  create_player_scenes(&server_data, 1, 2, scene_2_stream_positions, &scene_2_stream_bounds, scene_2_name_plate_positions, &scene_2_timer_pos, timer_source, view2_image_source);
+  create_player_scenes(&server_data, 1, 4, scene_4_stream_positions, &scene_4_stream_bounds, scene_4_name_plate_positions, &scene_4_timer_pos, timer_source, view4_image_source, audio_image_source);
+  create_player_scenes(&server_data, 1, 3, scene_3_stream_positions, &scene_3_stream_bounds, scene_3_name_plate_positions, &scene_3_timer_pos, timer_source, view3_image_source, audio_image_source);
+  create_player_scenes(&server_data, 1, 2, scene_2_stream_positions, &scene_2_stream_bounds, scene_2_name_plate_positions, &scene_2_timer_pos, timer_source, view2_image_source, audio_image_source);
 
   obs_source_release(view4_image_source);
   obs_source_release(view3_image_source);
